@@ -28,10 +28,9 @@ const App = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
     getToken(name, roomName).then(token => {
       console.log(token);
-      connect(token)
+      connect(token);
     });
   };
 
@@ -39,16 +38,8 @@ const App = () => {
     <Container fluid>
       <Row>
         <Col>
-          <div className="jumbotron">
-            <h1>In Your View</h1>
-          </div>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <div>
-            <h1>This is a header.</h1>
-            {roomState === "disconnected" ? (
+          {roomState === "disconnected" ? (
+            <div>
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="formName">
                   <Form.Label>Name</Form.Label>
@@ -70,13 +61,14 @@ const App = () => {
                   Join Room
                 </Button>
               </Form>
-            ) : (
-                <h3>{`Room: ${roomName} | Name: ${name}`}</h3>
-              )}
-          </div>
-        </Col>
-        <Col>
-          {roomState === "disconnected" ? <LocalVideoPreview /> : <VideoRoom />}
+              <LocalVideoPreview />
+            </div>
+          ) : (
+            <div>
+              <h3>{`Room: ${roomName} | Name: ${name}`}</h3>
+              <VideoRoom />
+            </div>
+          )}
         </Col>
       </Row>
     </Container>
