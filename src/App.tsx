@@ -1,26 +1,86 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ChangeEvent, FormEvent, useState, useEffect } from "react";
+import { Button, Container, Row, Col, Form } from "react-bootstrap";
 
-function App() {
+import LocalVideoPreview from "./components/VideoComponents/LocalVideoPreview";
+import VideoRoom from "./components/VideoComponents/VideoRoom";
+
+import useRoomState from "./hooks/useRoomContext";
+import useVideoContext from "./hooks/useVideoContext";
+
+import { useAppState } from "./state";
+
+const App = () => {
+  const { user, getToken, isFetching } = useAppState();
+  const { isConnecting, connect } = useVideoContext();
+  const roomState = useRoomState();
+
+  const [name, setName] = useState<string>(user?.displayName || "");
+  const [roomName, setRoomName] = useState<string>("");
+
+  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
+
+  const handleRoomNameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRoomName(event.target.value);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+
+    getToken(name, roomName).then(token => {
+      console.log(token);
+      connect(token)
+    });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container fluid>
+      <Row>
+        <Col>
+          <div className="jumbotron">
+            <h1>In Your View</h1>
+          </div>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <div>
+            <h1>This is a header.</h1>
+            {roomState === "disconnected" ? (
+              <Form onSubmit={handleSubmit}>
+                <Form.Group controlId="formName">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={name}
+                    onChange={handleNameChange}
+                  />
+                </Form.Group>
+                <Form.Group controlId="formRoomName">
+                  <Form.Label>Room Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={roomName}
+                    onChange={handleRoomNameChange}
+                  />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                  Join Room
+                </Button>
+              </Form>
+            ) : (
+                <h3>{`Room: ${roomName} | Name: ${name}`}</h3>
+              )}
+          </div>
+        </Col>
+        <Col>
+          {roomState === "disconnected" ? <LocalVideoPreview /> : <VideoRoom />}
+        </Col>
+      </Row>
+    </Container>
   );
-}
+};
 
 export default App;
