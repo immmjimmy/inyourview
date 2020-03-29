@@ -5,6 +5,8 @@ import Dictaphone from "../SpeechToTextComponents/Dictaphone";
 
 import "./Landing.css";
 
+import "./Landing.css";
+
 const PROJECT_NAME = "In Your View";
 
 const Landing = () => {
@@ -99,7 +101,7 @@ const Landing = () => {
               </p>
             </Col>
             <Col xs={3} style={{ textAlign: "center" }}>
-              <img src="/globe.png" style={{ width: "75px", height: "auto" }} />
+              <img src="/global.png" style={{ width: "75px", height: "auto" }} />
               <p
                 style={{
                   fontSize: "20px",
