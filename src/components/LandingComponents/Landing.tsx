@@ -9,18 +9,19 @@ const Landing = () => {
     <Container>
       <Row>
         <Col>
-          <h1>{PROJECT_NAME}</h1>
+        <img src="/ft logo.png" alt=""/>
+          <h1>In Your View</h1>
         </Col>
       </Row>
       <Row>
         <Col>
-          <LinkContainer to="/join">
-            <Button variant="outline-primary">Join</Button>
+          <LinkContainer to="/Join">
+            <Button variant="primary">Join</Button>
           </LinkContainer>
         </Col>
         <Col>
-          <LinkContainer to="/host">
-            <Button variant="outline-primary">Host</Button>
+          <LinkContainer to="/Host">
+            <Button variant="primary">Host</Button>
           </LinkContainer>
         </Col>
       </Row>
