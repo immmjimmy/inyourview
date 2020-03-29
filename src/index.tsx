@@ -41,7 +41,7 @@ const VideoAppWrapper = () => {
 
   return (
     <VideoProvider options={connectionOptions} onError={setError}>
-      <Dictaphone updateTranscript={setTranscription} user={user} />
+      {/* <Dictaphone updateTranscript={setTranscription} user={user} /> */}
       <Router>
         <Switch>
           <Route exact path="/">
