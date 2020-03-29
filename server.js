@@ -1,6 +1,11 @@
 const express = require("express");
-const app = express();
 const path = require("path");
+//const http = require("http");
+const socketio = require("socket.io");
+
+const app = express();
+//const server = http.createServer(app);
+//const io = socketio(server);
 
 const AccessToken = require("twilio").jwt.AccessToken;
 const VideoGrant = AccessToken.VideoGrant;
@@ -38,4 +43,17 @@ app.get("/", (_, res) => {
   res.sendFile(path.join(__dirname, "build/index.html"))}
 );
 
-app.listen(8081, () => console.log("token server running on 8081"));
+const server = app.listen(8081, () => console.log("token server running on 8081"));
+const io = socketio(server);
+
+io.on("connection", socket => {
+    socket.on("user", (data)=>{
+      socket.broadcast.emit("user", data);
+      console.log("user", data)
+    });
+    socket.on("host", (data)=>{
+      socket.broadcast.emit("host", data);
+      console.log("host", data)
+    });
+    socket.on("disconnect", () => console.log("Client disconnected"));
+});

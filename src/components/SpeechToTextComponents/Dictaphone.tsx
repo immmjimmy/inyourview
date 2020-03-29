@@ -1,29 +1,33 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useState } from "react";
+import socketIOClient from "socket.io-client";
 //@ts-ignore
 import SpeechRecognition from "react-speech-recognition";
 
 interface DictaphoneProps {
-  transcript: String,
-  browserSupportsSpeechRecognition: Boolean
+  transcript: string,
+  user: string
 }
 
-const Dictaphone = ({
-  transcript,
-  browserSupportsSpeechRecognition
-}: DictaphoneProps) => {
-  if (!browserSupportsSpeechRecognition) {
-    return null;
-  }
+const socket = socketIOClient('http://localhost:8081');
 
-  return (
-    <div style={{
-          width: "200px",
-          height: "300px",
-          border: "1px solid #ccc",
-          overflowY: "auto"
-        }}>{transcript}</div>
-  );
+const Dictaphone = ({ transcript, user="user" }: DictaphoneProps) => {
+  const [textToDisplay, setTextToDisplay] = useState("");
+
+  useEffect(() => {
+    socket.emit(user, transcript);
+  }, [transcript]);
+
+  useEffect(() => {
+    if (user === "host") {
+      //@ts-ignore
+      socket.on("user", data => setTextToDisplay(data));
+    } else {
+      //@ts-ignore
+      socket.on("host", data => setTextToDisplay(data));
+    }
+  }, []);
+
+  return <>{textToDisplay}</>;
 };
 
 export default SpeechRecognition(Dictaphone);
