@@ -65,3 +65,55 @@ app.listen(8081, () => {
     console.log("Connected to '" + DATABASE_NAME + "'!");
   });
 });
+
+// ==================================== MongoDB Routes ======================//
+// Saves a new interview
+/**
+Format:
+{
+	"username":"Interviewer name",
+	"interviews":
+	[
+		{
+			"name":"Interviewee name",
+			"code":"big blobeeeeeeeee",
+			"notes":"interviewer feedback"
+		}
+	]
+}
+*/
+app.post("/post/interview", (request, response) => {
+    collection.insert(request.body, (error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.send(result.result);
+    })
+});
+
+// Gets all of an interviewer's interviews
+app.get("/get/interview/:interviewer", (request, response) => {
+    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
+        if(error) {
+            return response.status(500).send(error);
+        }
+        return response.send(result[0]["interviews"]);
+    });
+});
+
+// Gets a specific interview from the interviewer's interview
+app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
+    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
+        if(error) {
+            return response.status(500).send(error);
+        }
+
+        interviews = result[0]["interviews"];
+        for (i = 0; i < interviews.length; i++) {
+          if (interviews[i]["name"] == request.params.interviewee) {
+            return response.send(interviews[i]);
+          }
+        }
+        return response.status(404).send("interviewee not found!");
+    });
+});
