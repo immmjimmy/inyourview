@@ -83,6 +83,7 @@ Format:
 }
 */
 app.post("/post/interview", (request, response) => {
+    // TODO (gina): validate request
     collection.insert(request.body, (error, result) => {
       if (error) {
         return response.status(500).send(error);
@@ -111,9 +112,60 @@ app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
         interviews = result[0]["interviews"];
         for (i = 0; i < interviews.length; i++) {
           if (interviews[i]["name"] == request.params.interviewee) {
-            return response.send(interviews[i]);
+              return response.send(interviews[i]);
           }
         }
         return response.status(404).send("interviewee not found!");
     });
+});
+
+/** Updates a specific interview
+Takes a dictionary body.
+
+Every parameter is optional
+{
+"name":"updated interviewee name",
+"code":"updated code",
+"notes":"updated feedback"
+}
+
+*/
+app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
+  collection.find({"username":request.params.interviewer}).toArray((error, result) => {
+      if(error) {
+          return response.status(500).send(error);
+      }
+
+      // Find the interview we need to modify
+      interviews = result[0]["interviews"];
+      interviewee = -1;
+      for (i = 0; i < interviews.length; i++) {
+          if (interviews[i]["name"] == request.params.interviewee) {
+              interviewee = i;
+              break;
+          }
+      }
+
+      // Check to see if it was found
+      if (interviewee < 0) {
+          return response.status(404).send("Cannot find interviewee");
+      }
+
+      // Find and update fields specified by the request
+      keys = Object.keys(request.body)
+      for (i = 0; i < keys.length; i++) {
+          interviews[interviewee][keys[i]] = request.body[keys[i]];
+      }
+
+      // Now we do another call to collection to update the db with our data
+      collection.updateOne(
+        {"username":request.params.interviewer},
+        {$set: {"interviews":interviews}},
+        (error, result) => {
+          if (error) {
+              return response.status(500).send(error);
+          }
+          return response.status(200).send();
+      });
+  });
 });
