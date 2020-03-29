@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-const socketio = require("socket.io");
 const app = express();
 
 const AccessToken = require("twilio").jwt.AccessToken;
@@ -299,16 +298,16 @@ app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
 });
 
 // handles speech-to-text transcript sharing between host and user
-const io = socketio(server);
-io.on("connection", socket => {
-  console.log("connected");
-  socket.on("user", data => {
-    socket.broadcast.emit("user", data);
-    console.log("user", data);
-  });
-  socket.on("host", data => {
-    socket.broadcast.emit("host", data);
-    console.log("host", data);
-  });
-  socket.on("disconnect", () => console.log("Client disconnected"));
-});
+// const io = socketio(server);
+// io.on("connection", socket => {
+//   console.log("connected");
+//   socket.on("user", data => {
+//     socket.broadcast.emit("user", data);
+//     console.log("user", data);
+//   });
+//   socket.on("host", data => {
+//     socket.broadcast.emit("host", data);
+//     console.log("host", data);
+//   });
+//   socket.on("disconnect", () => console.log("Client disconnected"));
+// });
