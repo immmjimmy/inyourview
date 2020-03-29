@@ -1,0 +1,32 @@
+
+
+
+const firepadEditorProps: FirepadEditorProps = {
+  apiKey: ``,
+  databaseUrl: ``,
+  userId: "Joey",
+  roomId: "-M3YfVpDtXb_T-R1lIJQ",
+  codeMode: true,
+  defaultText: "some default text",
+  textCallback: (text: String) => {console.log(text)}
+};
+
+const firepadEditorProps2: FirepadEditorProps = {
+  apiKey: ``,
+  databaseUrl: ``,
+  userId: "Joey2",
+  roomId: makeRoomId(``,``),
+  codeMode: false,
+  defaultText: "some default text",
+  textCallback: (text: String) => {}
+};
+
+render() {
+  <div style={{ width: "1000px", height: "200px" }}>
+  <FirepadEditor {...firepadEditorProps} />  
+</div>
+<div style={{ width: "1000px", height: "200px" }}>
+  <FirepadEditor {...firepadEditorProps2} />  
+</div>
+}
+
