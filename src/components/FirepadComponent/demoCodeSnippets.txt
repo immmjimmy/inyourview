@@ -1,0 +1,32 @@
+
+import Editor2, { EditorProps } from "./components/FirepadComponent/Editor";
+import { makeRoomId } from "./components/FirepadComponent/FirepadFunctions";
+
+const editorProps: EditorProps = {
+    apiKey: "",
+    databaseUrl: "",
+    userId: "Joey",
+    roomId: "-M3YfVpDtXb_T-R1lIJQ",
+    codeMode: true,
+    defaultText: "some defualt text"
+  };
+  
+  const editorProps2: EditorProps = {
+    apiKey: "",
+    databaseUrl: "",
+    userId: "Joey2",
+    roomId: makeRoomId("<apikeys>", "<database url>"),
+    codeMode: false,
+    defaultText: "some defualt text"
+  };
+
+render() {
+    <div style={{ width: "1000px", height: "200px" }}>
+    <Editor2 {...editorProps} />
+    </div>
+
+    <div style={{ width: "1000px", height: "200px" }}>
+    <Editor2 {...editorProps2} />
+    </div>
+}
+
