@@ -44,7 +44,7 @@ export const useLocalVideoTrack = () => {
         console.log(err);
         return track;
       }),
-    []
+    [track]
   );
 
   useEffect(() => {
