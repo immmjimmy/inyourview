@@ -11,7 +11,6 @@ const Landing = () => {
       <Row>
         <Col>
           <h1>{PROJECT_NAME}</h1>
-          <Dictaphone/>
         </Col>
       </Row>
       <Row>
