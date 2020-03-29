@@ -11,7 +11,7 @@ interface DictaphoneProps {
 
 const socket = socketIOClient('http://localhost:8081');
 
-const Dictaphone = ({ transcript, user="user", updateTranscript }: DictaphoneProps) => {
+const Dictaphone = ({ transcript, user, updateTranscript }: DictaphoneProps) => {
 
   // constantly emit transcribed speech
   useEffect(() => {
