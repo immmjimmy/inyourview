@@ -36,19 +36,20 @@ const connectionOptions: ConnectOptions = {
 const VideoAppWrapper = () => {
   const { setError } = useAppState();
 
-  const [transcription, setTranscription] = useState<string>("");
-  const [user, setUser] = useState<string>("user");
-
   const [apiKey, setApiKey] = useState<string>("");
   const [firebaseUrl, setFirebaseUrl] = useState<string>("");
 
-  fetch("/apiKey")
-    .then(res => res.text())
-    .then(data => setApiKey(data));
+  if (apiKey === "") {
+    fetch("/apiKey")
+      .then(res => res.text())
+      .then(data => setApiKey(data));
+  }
 
-  fetch("/firebase-url")
-    .then(res => res.text())
-    .then(data => setFirebaseUrl(data));
+  if (firebaseUrl === "") {
+    fetch("/firebase-url")
+      .then(res => res.text())
+      .then(data => setFirebaseUrl(data));
+  }
 
   return (
     <VideoProvider options={connectionOptions} onError={setError}>
