@@ -83,12 +83,16 @@ Format:
 }
 */
 app.post("/post/interview", (request, response) => {
-    collection.insert(request.body, (error, result) => {
-      if (error) {
-        return response.status(500).send(error);
-      }
-      return response.send(result.result);
-    })
+    collection.update(
+      {"username":request.body["username"]},
+      {$setOnInsert: request.body},
+      {upsert: true},
+      (error, result) => {
+          if (error) {
+              return response.status(500).send(error);
+          }
+          return response.send(result.result);
+      });
 });
 
 // Saves a new interview under an interviewer
@@ -179,7 +183,6 @@ app.get("/delete/:interviewer/:interviewee", (request, response) => {
 
         // Get the list of interviews and remove the interviewee
         interviews = result[0]["interviews"];
-        console.log(interviews);
         interviewee = -1;
         for (i = 0; i < interviews.length; i++) {
             if (interviews[i]["name"] == request.params.interviewee) {
