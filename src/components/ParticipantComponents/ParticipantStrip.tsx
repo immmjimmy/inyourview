@@ -18,7 +18,7 @@ const ParticipantStrip = () => {
   ] = useSelectedParticipant();
 
   return (
-    <Container>
+    <>
       <Participant
         participant={localParticipant}
         isSelected={selectedParticipant === localParticipant}
@@ -32,7 +32,7 @@ const ParticipantStrip = () => {
           onClick={() => setSelectedParticipant(participant)}
         />
       ))}
-    </Container>
+    </>
   );
 };
 

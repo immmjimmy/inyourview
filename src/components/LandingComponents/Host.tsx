@@ -1,32 +1,92 @@
-import React from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import React, { ChangeEvent, FormEvent, useState } from "react";
+import { Button, Col, Container, Form, Row, Navbar } from "react-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
+import { Redirect } from "react-router-dom";
+
+import useVideoContext from "../../hooks/useVideoContext";
+import { useAppState } from "../../state";
 
 const Host = () => {
-  return (
-    <Container fluid style = {{height: "100%", maxHeight: "100%"}}>
-      <Row style = {{height: "5%", backgroundColor: "#7189ff"}}>
-        <Col style = {{height: "100%"}}>
-          <h1
-            style={{
-              textAlign: "left",
-              marginTop: "15px",
-              fontFamily: "Expletus Sans",
-              color: "white",
-              fontSize: "17px",
-            }}>
-            <img
-              src="/ft logo.png"
-              style={{ width: "17px", height: "auto" }}
-            />
-            In Your View
-          </h1>
-        </Col>
-      </Row>
+  const [name, setName] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
+  const [roomName, setRoomName] = useState<string>("");
+  const [intervieweeName, setIntervieweeName] = useState<string>("");
+  const [submit, setSubmit] = useState<boolean>(false);
 
-      <Row style = {{height: "92.5%", backgroundColor: "white"}}>
-        <Col style = {{height: "100%"}}>
-          <Row style = {{height:"7.5%"}}>
-            <Col style = {{height: "100%"}}>
+  const { getToken } = useAppState();
+  const { connect } = useVideoContext();
+
+  const handleNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+
+  const handleUserNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setUserName(e.target.value);
+  };
+
+  const handleRoomNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setRoomName(e.target.value);
+  };
+
+  const handleIntervieweeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIntervieweeName(e.target.value);
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmit(true);
+
+    await fetch(`/post/interview`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: userName,
+        interviews: []
+      })
+    }).then(res => {
+      console.log(res);
+    });
+
+    getToken(name, roomName).then(token => {
+      console.log(token);
+      connect(token);
+    });
+  };
+
+  if (submit) {
+    return (
+      <Redirect
+        to={`/room/${roomName}/${name}/${userName}/${intervieweeName}`}
+      />
+    );
+  }
+
+  return (
+    <>
+      <Navbar style={{ backgroundColor: "#7189ff" }}>
+        <LinkContainer to="/">
+          <Navbar.Brand>
+            <img alt="" src="/ft logo.png" width="30px" height="auto" />
+            <h4
+              style={{
+                color: "white",
+                display: "inline",
+                fontFamily: "Expletus Sans"
+              }}
+            >
+              {`    In Your View`}
+            </h4>
+          </Navbar.Brand>
+        </LinkContainer>
+      </Navbar>
+      <Container fluid style={{ height: "100%", maxHeight: "100%" }}>
+        <Row style={{ height: "92.5%" }}>
+          <Col style={{ height: "100%" }}>
+            <Row style={{ height: "7.5%" }}>
+              <Col style={{ height: "100%" }}>
                 <h1
                   style={{
                     textAlign: "center",
@@ -36,52 +96,80 @@ const Host = () => {
                     fontFamily: "Raleway",
                     color: "black",
                     fontSize: "30px",
-                    fontWeight: "bold",
-                  }}>
+                    fontWeight: "bold"
+                  }}
+                >
                   Host Room
                 </h1>
-            </Col>
-          </Row>
-          <Row style = {{height:"50%"}}>
-            <Col>
-            </Col>
-            <Col>
-              <Form style = {{marginTop: "30px", marginLeft: "45px", fontFamily:" Raleway"}}>
-                <Form.Label>Interviewer Name</Form.Label>
-                <Form.Group controlId="formInterviewerName">
-                <Form.Control
-                  type="text" placeholder="Enter your name" style={{borderRadius: "10px"}}
-                  />
-                </Form.Group>
-                <Form.Label>Room Name</Form.Label>
-                <Form.Group controlId="formRoomName">
-                  <Form.Control
-                    type="text" placeholder = "Enter room name" style={{borderRadius: "10px"}}
+              </Col>
+            </Row>
+            <Row style={{ height: "50%" }}>
+              <Col />
+              <Col>
+                <Form
+                  onSubmit={handleSubmit}
+                  style={{
+                    marginTop: "30px",
+                    marginLeft: "45px",
+                    fontFamily: "Raleway"
+                  }}
+                >
+                  <Form.Label>Interviewer Name</Form.Label>
+                  <Form.Group controlId="formInterviewerName">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter your name"
+                      onChange={handleNameChange}
+                      style={{ borderRadius: "10px" }}
                     />
-                </Form.Group>
-                <Form.Label>Room Passcode</Form.Label>
-                <Form.Group controlId="formRoomPasscode">
-                  <Form.Control
-                    type="text" placeholder = "Enter room passcode" style={{borderRadius: "10px"}}
+                  </Form.Group>
+                  <Form.Label>Interviewer Username</Form.Label>
+                  <Form.Group controlId="formInterviewerUserName">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter your username"
+                      onChange={handleUserNameChange}
+                      style={{ borderRadius: "10px" }}
                     />
-                </Form.Group>
-                <Form.Label>Interviewee Name</Form.Label>
-                <Form.Group controlId="formIntervieweeName">
-                <Form.Control
-                  type="text" placeholder="Enter interviewee's name" style={{borderRadius: "10px"}}
-                  />
-                </Form.Group>
-                <Button variant="primary" type="submit" style={{marginTop: "25px", borderRadius: "10px", width:"100px", textAlign: "center"}}>
-                  Host
-                </Button>
-              </Form>
-            </Col>
-            <Col>
-            </Col>
-          </Row>
-      </Col>
-    </Row>
-    </Container>
+                  </Form.Group>
+                  <Form.Label>Interviewee Name</Form.Label>
+                  <Form.Group controlId="formIntervieweeName">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter your name of the interviewee"
+                      onChange={handleIntervieweeChange}
+                      style={{ borderRadius: "10px" }}
+                    />
+                  </Form.Group>
+                  <Form.Label>Room Name</Form.Label>
+                  <Form.Group controlId="formRoomName">
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter a room name"
+                      onChange={handleRoomNameChange}
+                      style={{ borderRadius: "10px" }}
+                    />
+                  </Form.Group>
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    style={{
+                      marginTop: "25px",
+                      borderRadius: "10px",
+                      width: "100px",
+                      textAlign: "center"
+                    }}
+                  >
+                    Host
+                  </Button>
+                </Form>
+              </Col>
+              <Col />
+            </Row>
+          </Col>
+        </Row>
+      </Container>
+    </>
   );
 };
 

@@ -1,17 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import { ConnectOptions } from "twilio-video";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import App from "./App";
+
+// import App from "./App";
+import Room from "./components/VideoComponents/VideoRoom";
 import Landing from "./components/LandingComponents/Landing";
 import Host from "./components/LandingComponents/Host";
 import Join from "./components/LandingComponents/Join";
+import Feedback from "./components/FeedbackComponents/Feedback";
 
 import AppStateProvider, { useAppState } from "./state";
 import VideoProvider from "./components/VideoProvider";
+
+import Dictaphone from "./components/SpeechToTextComponents/Dictaphone";
 
 const connectionOptions: ConnectOptions = {
   bandwidthProfile: {
@@ -31,25 +36,56 @@ const connectionOptions: ConnectOptions = {
 const VideoAppWrapper = () => {
   const { setError } = useAppState();
 
+  const [apiKey, setApiKey] = useState<string>("");
+  const [firebaseUrl, setFirebaseUrl] = useState<string>("");
+
+  if (apiKey === "") {
+    fetch("/apiKey")
+      .then(res => res.text())
+      .then(data => setApiKey(data));
+  }
+
+  if (firebaseUrl === "") {
+    fetch("/firebase-url")
+      .then(res => res.text())
+      .then(data => setFirebaseUrl(data));
+  }
+
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          <Landing />
-        </Route>
-        <Route exact path="/host">
-          <Host />
-        </Route>
-        <Route exact path="/join">
-          <Join />
-        </Route>
-        <Route path="/room">
-          <VideoProvider options={connectionOptions} onError={setError}>
-            <App />
-          </VideoProvider>
-        </Route>
-      </Switch>
-    </Router>
+    <VideoProvider options={connectionOptions} onError={setError}>
+      <Router>
+        <Switch>
+          <Route exact path="/">
+            <Landing />
+          </Route>
+          <Route exact path="/host">
+            <Host />
+          </Route>
+          <Route exact path="/join">
+            <Join />
+          </Route>
+          <Route
+            exact
+            path="/room/:room/:name/:username/:interviewee"
+            children={
+              <Room
+                interviewerUsername={true}
+                apiKey={apiKey}
+                firebaseUrl={firebaseUrl}
+              />
+            }
+          />
+          <Route
+            exact
+            path="/room/:room/:name"
+            children={<Room apiKey={apiKey} firebaseUrl={firebaseUrl} />}
+          />
+          <Route path="/feedback">
+            <Feedback />
+          </Route>
+        </Switch>
+      </Router>
+    </VideoProvider>
   );
 };
 

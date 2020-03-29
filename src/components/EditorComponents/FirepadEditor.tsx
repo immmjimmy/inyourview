@@ -1,26 +1,33 @@
 import React from "react";
-import { initializeFirebase, getFirebaseRoomRef} from "./FirepadFunctions"
+import { initializeFirebase, getFirebaseRoomRef } from "./FirepadFunctions";
 import "./Editor.css";
 
 export interface FirepadEditorProps {
-  apiKey: String;
-  databaseUrl: String;
-  userId: String;
-  roomId: String;
-  codeMode: Boolean;
-  defaultText: String;
-  textCallback: Function;
+  apiKey: string;
+  databaseUrl: string;
+  userId: string;
+  roomId: string;
+  codeMode: boolean;
+  defaultText: string;
+  textCallback: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // React component for the firepad + codemirror editor
 class Editor extends React.Component<FirepadEditorProps> {
   componentDidMount() {
-    const { apiKey, databaseUrl, userId, roomId, codeMode, defaultText, textCallback} = this.props;
+    const {
+      apiKey,
+      databaseUrl,
+      userId,
+      roomId,
+      codeMode,
+      defaultText,
+      textCallback
+    } = this.props;
 
     // Initialize firepad, state management done internally, callback to e
     var htmlElement = document.getElementById("firepad-container");
     if (htmlElement) {
-
       initializeFirebase(apiKey, databaseUrl);
 
       // Create codemirror instance
@@ -44,9 +51,10 @@ class Editor extends React.Component<FirepadEditorProps> {
       // To track firebase users
       firepad.setUserId(userId);
 
-      // triggered by firebase onchange 
-      firepad.on('synced', function() {
-        textCallback(firepad.getText());  // also available in HTML with .getHTML()
+      // triggered by firebase onchange
+      firepad.on("synced", function() {
+        console.log(firepad.getText());
+        textCallback(firepad.getText()); // also available in HTML with .getHTML()
       });
     }
   }
