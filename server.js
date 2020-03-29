@@ -8,13 +8,18 @@ const VideoGrant = AccessToken.VideoGrant;
 require("dotenv").config();
 
 // MongoDB stuff
-const MongoClient = require('mongodb').MongoClient;
+const MongoClient = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 const BodyParser = require("body-parser");
 
 const mongoConnectUser = process.env.MONGO_CONNECT_USER;
 const mongoConnectPass = process.env.MONGO_CONNECT_PASS;
-const CONNECTION_URL = "mongodb+srv://" + mongoConnectUser + ':' + mongoConnectPass + "@lahacks2020-0apqi.azure.mongodb.net/test?retryWrites=true&w=majority";
+const CONNECTION_URL =
+  "mongodb+srv://" +
+  mongoConnectUser +
+  ":" +
+  mongoConnectPass +
+  "@lahacks2020-0apqi.azure.mongodb.net/test?retryWrites=true&w=majority";
 
 const DATABASE_NAME = "inyourview";
 
@@ -23,10 +28,20 @@ const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
 const twilioApiKeySecret = process.env.TWILIO_API_KEY_SECRET;
 
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+const FIREBASE_DATABASE_URL = process.env.FIREBASE_DATABASE_URL;
 
 app.use(BodyParser.json());
 app.use(BodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "build")));
+
+app.get("/apiKey", (_, res) => {
+  res.send(FIREBASE_API_KEY);
+});
+
+app.get("/firebase-url", (_, res) => {
+  res.send(FIREBASE_DATABASE_URL);
+});
 
 app.get("/token", (req, res) => {
   const { identity, roomName } = req.query;
@@ -50,21 +65,25 @@ app.get("/token", (req, res) => {
 
 app.get("/", (_, res) => {
   console.log(res);
-  res.sendFile(path.join(__dirname, "build/index.html"))}
-);
+  res.sendFile(path.join(__dirname, "build/index.html"));
+});
 
 const server = app.listen(8081, () => {
-    console.log("token server running on 8081");
+  console.log("token server running on 8081");
 
-    MongoClient.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true }, (error, client) => {
-    if (error) {
-      throw error;
+  MongoClient.connect(
+    CONNECTION_URL,
+    { useNewUrlParser: true, useUnifiedTopology: true },
+    (error, client) => {
+      if (error) {
+        throw error;
+      }
+
+      database = client.db(DATABASE_NAME);
+      collection = database.collection("interviews");
+      console.log("Connected to '" + DATABASE_NAME + "'!");
     }
-
-    database = client.db(DATABASE_NAME);
-    collection = database.collection("interviews");
-    console.log("Connected to '" + DATABASE_NAME + "'!");
-  });
+  );
 });
 
 // ==================================== MongoDB Routes ======================//
@@ -84,73 +103,81 @@ Format:
 }
 */
 app.post("/post/interview", (request, response) => {
-    collection.update(
-      {"username":request.body["username"]},
-      {$setOnInsert: request.body},
-      {upsert: true},
-      (error, result) => {
-          if (error) {
-              return response.status(500).send(error);
-          }
-          return response.send(result.result);
-      });
+  collection.update(
+    { username: request.body["username"] },
+    { $setOnInsert: request.body },
+    { upsert: true },
+    (error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      }
+      return response.send(result.result);
+    }
+  );
 });
 
 // Saves a new interview under an interviewer
 app.post("/post/interview/:interviewer", (request, response) => {
-    // Find the interviewer to add under
-    collection.find({"username" : request.params.interviewer}).toArray((error, result) => {
-        if(error) {
+  // Find the interviewer to add under
+  collection
+    .find({ username: request.params.interviewer })
+    .toArray((error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      } else if (result.length <= 0) {
+        return response.status(404).send("Interviewer not found!");
+      }
+
+      // Add it to the list of interviews
+      result[0]["interviews"].push(request.body);
+
+      // Save it to the database
+      collection.updateOne(
+        { username: request.params.interviewer },
+        { $set: { interviews: result[0]["interviews"] } },
+        (error, result) => {
+          if (error) {
             return response.status(500).send(error);
-        } else if (result.length <= 0) {
-            return response.status(404).send("Interviewer not found!")
+          }
+
+          return response.send(result.result);
         }
-
-        // Add it to the list of interviews
-        result[0]["interviews"].push(request.body);
-
-        // Save it to the database
-        collection.updateOne(
-          { "username" : request.params.interviewer},
-          {$set: { "interviews": result[0]["interviews"]}},
-          (error, result) => {
-              if (error) {
-                  return response.status(500).send(error);
-              }
-
-              return response.send(result.result);
-          });
+      );
     });
 });
 
 // Gets all of an interviewer's interviews
 app.get("/get/interview/:interviewer", (request, response) => {
-    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
-        if(error) {
-            return response.status(500).send(error);
-        } else if (result.length <= 0) {
-            return response.status(404).send("Interviewer not found!")
-        }
-        return response.send(result[0]["interviews"]);
+  collection
+    .find({ username: request.params.interviewer })
+    .toArray((error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      } else if (result.length <= 0) {
+        return response.status(404).send("Interviewer not found!");
+      }
+      return response.send(result[0]["interviews"]);
     });
 });
 
 // Gets a specific interview from the interviewer's interview
 app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
-    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
-        if(error) {
-            return response.status(500).send(error);
-        } else if (result.length <= 0) {
-            return response.status(404).send("Interviewer not found!")
-        }
+  collection
+    .find({ username: request.params.interviewer })
+    .toArray((error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      } else if (result.length <= 0) {
+        return response.status(404).send("Interviewer not found!");
+      }
 
-        interviews = result[0]["interviews"];
-        for (i = 0; i < interviews.length; i++) {
-          if (interviews[i]["name"] == request.params.interviewee) {
-              return response.send(interviews[i]);
-          }
+      interviews = result[0]["interviews"];
+      for (i = 0; i < interviews.length; i++) {
+        if (interviews[i]["name"] == request.params.interviewee) {
+          return response.send(interviews[i]);
         }
-        return response.status(404).send("interviewee not found!");
+      }
+      return response.status(404).send("interviewee not found!");
     });
 });
 
@@ -158,54 +185,60 @@ app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
 Deletes all of the interviewers specified by the post
 */
 app.post("/delete/interviewers", (request, response) => {
-    for (i = 0; i < request.body["names"].length; i++) {
-      collection.deleteOne(
-        { "username": request.body["names"][i] },
-        (error, result) => {
-            if (error) {
-                return response.status(500).send(error);
-            }
-        });
-    }
-    return response.status(200).send("deleasdated: " + request.body["names"]);
+  for (i = 0; i < request.body["names"].length; i++) {
+    collection.deleteOne(
+      { username: request.body["names"][i] },
+      (error, result) => {
+        if (error) {
+          return response.status(500).send(error);
+        }
+      }
+    );
+  }
+  return response.status(200).send("deleasdated: " + request.body["names"]);
 });
 
 /**
 Deletes the interviewee specified by name under the specified interviewer
 */
 app.get("/delete/:interviewer/:interviewee", (request, response) => {
-    // Get the interviewer's document
-    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
-        if(error) {
-            return response.status(500).send(error);
-        } else if (result.length <= 0) {
-            return response.status(404).send("Interviewer not found!");
-        }
+  // Get the interviewer's document
+  collection
+    .find({ username: request.params.interviewer })
+    .toArray((error, result) => {
+      if (error) {
+        return response.status(500).send(error);
+      } else if (result.length <= 0) {
+        return response.status(404).send("Interviewer not found!");
+      }
 
-        // Get the list of interviews and remove the interviewee
-        interviews = result[0]["interviews"];
-        interviewee = -1;
-        for (i = 0; i < interviews.length; i++) {
-            if (interviews[i]["name"] == request.params.interviewee) {
-                interviewee = i;
-                break;
-            }
+      // Get the list of interviews and remove the interviewee
+      interviews = result[0]["interviews"];
+      interviewee = -1;
+      for (i = 0; i < interviews.length; i++) {
+        if (interviews[i]["name"] == request.params.interviewee) {
+          interviewee = i;
+          break;
         }
-        if (interviewee < 0) {
-            return response.status(404).send("Interviewee " + interviewee + " not found!");
-        }
-        interviews.splice(interviewee, 1);
+      }
+      if (interviewee < 0) {
+        return response
+          .status(404)
+          .send("Interviewee " + interviewee + " not found!");
+      }
+      interviews.splice(interviewee, 1);
 
-        // Now save it to the db
-        collection.updateOne(
-          {"username": request.params.interviewer},
-          {$set: {"interviews": interviews}},
-          (error, result) => {
-              if (error) {
-                  return response.status(500).send(err);
-              }
-              return response.send(result.result);
-          });
+      // Now save it to the db
+      collection.updateOne(
+        { username: request.params.interviewer },
+        { $set: { interviews: interviews } },
+        (error, result) => {
+          if (error) {
+            return response.status(500).send(err);
+          }
+          return response.send(result.result);
+        }
+      );
     });
 });
 
@@ -221,56 +254,60 @@ Every parameter is optional
 }
 */
 app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
-  collection.find({"username":request.params.interviewer}).toArray((error, result) => {
-      if(error) {
-          return response.status(500).send(error);
+  collection
+    .find({ username: request.params.interviewer })
+    .toArray((error, result) => {
+      if (error) {
+        return response.status(500).send(error);
       } else if (result.length <= 0) {
-          return response.status(404).send("Interviewer not found!")
+        return response.status(404).send("Interviewer not found!");
       }
 
       // Find the interview we need to modify
       interviews = result[0]["interviews"];
       interviewee = -1;
       for (i = 0; i < interviews.length; i++) {
-          if (interviews[i]["name"] == request.params.interviewee) {
-              interviewee = i;
-              break;
-          }
+        if (interviews[i]["name"] == request.params.interviewee) {
+          interviewee = i;
+          break;
+        }
       }
 
       // Check to see if it was found
       if (interviewee < 0) {
-          return response.status(404).send("Interviewee not found!");
+        return response.status(404).send("Interviewee not found!");
       }
 
       // Find and update fields specified by the request
-      keys = Object.keys(request.body)
+      keys = Object.keys(request.body);
       for (i = 0; i < keys.length; i++) {
-          interviews[interviewee][keys[i]] = request.body[keys[i]];
+        interviews[interviewee][keys[i]] = request.body[keys[i]];
       }
 
       // Now we do another call to collection to update the db with our data
       collection.updateOne(
-        {"username":request.params.interviewer},
-        {$set: {"interviews":interviews}},
+        { username: request.params.interviewer },
+        { $set: { interviews: interviews } },
         (error, result) => {
           if (error) {
-              return response.status(500).send(error);
+            return response.status(500).send(error);
           }
           return response.send(result.result);
-      });
-  });
+        }
+      );
+    });
 });
 
 // handles speech-to-text transcript sharing between host and user
 const io = socketio(server);
 io.on("connection", socket => {
-    socket.on("user", (data)=>{
-      socket.broadcast.emit("user", data);
-      console.log("user", data)
-    });
-    socket.on("host", (data)=>{
-      socket.broadcast.emit("host", data);
-      console.log("host", data)
-    });
-    socket.on("disconnect", () => console.log("Client disconnected"));
+  socket.on("user", data => {
+    socket.broadcast.emit("user", data);
+    console.log("user", data);
+  });
+  socket.on("host", data => {
+    socket.broadcast.emit("host", data);
+    console.log("host", data);
+  });
+  socket.on("disconnect", () => console.log("Client disconnected"));
+});

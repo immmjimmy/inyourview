@@ -2,9 +2,11 @@ import React, { useRef, useEffect } from "react";
 import { IVideoTrack } from "../../types";
 import { Track } from "twilio-video";
 
+import "./VideoTrack.css";
+
 const videoStyles = {
   width: "100%",
-  maxHeight: "100%",
+  maxHeight: "100%"
 };
 
 interface VideoTrackProps {
@@ -39,7 +41,7 @@ const VideoTrack = ({ track, isLocal, priority }: VideoTrackProps) => {
     };
   }, [track, priority]);
 
-  const style : React.CSSProperties = isLocal
+  const style: React.CSSProperties = isLocal
     ? { ...videoStyles, transform: "rotateY(180deg)" }
     : videoStyles;
 

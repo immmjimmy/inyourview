@@ -7,6 +7,7 @@ import { ConnectOptions } from "twilio-video";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import App from "./App";
+import Room from "./components/VideoComponents/VideoRoom";
 import Landing from "./components/LandingComponents/Landing";
 import Host from "./components/LandingComponents/Host";
 import Join from "./components/LandingComponents/Join";
@@ -34,27 +35,26 @@ const VideoAppWrapper = () => {
   const { setError } = useAppState();
 
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/">
-          <Landing />
-        </Route>
-        <Route exact path="/host">
-          <Host />
-        </Route>
-        <Route exact path="/join">
-          <Join />
-        </Route>
-        <Route path="/room">
-          <VideoProvider options={connectionOptions} onError={setError}>
-            <App />
-          </VideoProvider>
-        </Route>
-        <Route path="/feedback">
-          <Feedback />
-        </Route>
-      </Switch>
-    </Router>
+    <VideoProvider options={connectionOptions} onError={setError}>
+      <Router>
+        <Switch>
+          <Route exact path="/">
+            <Landing />
+          </Route>
+          <Route exact path="/host">
+            <Host />
+          </Route>
+          <Route exact path="/join">
+            <Join />
+          </Route>
+          <Route exact path="/room/:room/:name/:username/:interviewee" children={<Room interviewerUsername />} />
+          <Route exact path="/room/:room/:name" children={<Room />} />
+          <Route path="/feedback">
+            <Feedback />
+          </Route>
+        </Switch>
+      </Router>
+    </VideoProvider>
   );
 };
 
