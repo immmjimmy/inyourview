@@ -1,4 +1,5 @@
 import React from "react";
+import { initializeFirebase, getFirebaseRoomRef} from "./FirepadFunctions"
 import "./Editor.css";
 
 export interface FirepadEditorProps {
@@ -11,34 +12,16 @@ export interface FirepadEditorProps {
   textCallback: Function;
 }
 
+// React component for the firepad + codemirror editor
 class Editor extends React.Component<FirepadEditorProps> {
   componentDidMount() {
     const { apiKey, databaseUrl, userId, roomId, codeMode, defaultText, textCallback} = this.props;
 
-    // Get Firepad room reference from Firebase
-    const getRoomRef = (roomId: String) => {
-      // @ts-ignore
-      var ref = window.firebase.database().ref();
-      ref = ref.child(roomId);
-
-      if (typeof console !== "undefined") {
-        console.log("Firebase data: ", ref.toString());
-      }
-      return ref;
-    };
-
+    // Initialize firepad, state management done internally, callback to e
     var htmlElement = document.getElementById("firepad-container");
     if (htmlElement) {
-      // @ts-ignore
-      if (!window.firebase.apps.length) {
-        // check if firebase has already been initialized
-        var config = {
-          apiKey: apiKey,
-          databaseURL: databaseUrl
-        };
-        // @ts-ignore
-        window.firebase.initializeApp(config);
-      }
+
+      initializeFirebase(apiKey, databaseUrl);
 
       // Create codemirror instance
       // @ts-ignore
@@ -48,9 +31,9 @@ class Editor extends React.Component<FirepadEditorProps> {
       });
 
       // Get Firebase Database reference.
-      var firepadRef = getRoomRef(roomId);
+      var firepadRef = getFirebaseRoomRef(roomId);
 
-      // Create Firepad (with rich text toolbar and shortcuts enabled).
+      // Create Firepad with CodeMirror
       // @ts-ignore
       var firepad = window.Firepad.fromCodeMirror(firepadRef, codeMirror, {
         richTextToolbar: !codeMode,
@@ -58,17 +41,18 @@ class Editor extends React.Component<FirepadEditorProps> {
         defaultText: defaultText
       });
 
+      // To track firebase users
       firepad.setUserId(userId);
 
-      // send firepad text 
+      // triggered by firebase onchange 
       firepad.on('synced', function() {
-        textCallback(firepad.getText());
+        textCallback(firepad.getText());  // also available in HTML with .getHTML()
       });
     }
   }
 
   render() {
-    return <div id="firepad-container"><div id="dump"></div></div>;
+    return <div id="firepad-container"></div>;
   }
 }
 
