@@ -18,4 +18,3 @@ export function makeRoomId(apiKey: String, databaseUrl: String): String {
   ref = ref.push()
   return ref.key
 }
-

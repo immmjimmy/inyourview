@@ -1,18 +1,19 @@
 import React from "react";
 import "./Editor.css";
 
-export interface EditorProps {
+export interface FirepadEditorProps {
   apiKey: String;
   databaseUrl: String;
   userId: String;
   roomId: String;
   codeMode: Boolean;
   defaultText: String;
+  textCallback: Function;
 }
 
-class Editor extends React.Component<EditorProps> {
+class Editor extends React.Component<FirepadEditorProps> {
   componentDidMount() {
-    const { apiKey, databaseUrl, userId, roomId, codeMode, defaultText} = this.props;
+    const { apiKey, databaseUrl, userId, roomId, codeMode, defaultText, textCallback} = this.props;
 
     // Get Firepad room reference from Firebase
     const getRoomRef = (roomId: String) => {
@@ -58,11 +59,16 @@ class Editor extends React.Component<EditorProps> {
       });
 
       firepad.setUserId(userId);
+
+      // send firepad text 
+      firepad.on('synced', function() {
+        textCallback(firepad.getText());
+      });
     }
   }
 
   render() {
-    return <div id="firepad-container"></div>;
+    return <div id="firepad-container"><div id="dump"></div></div>;
   }
 }
 
