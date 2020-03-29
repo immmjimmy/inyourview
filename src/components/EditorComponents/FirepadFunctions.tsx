@@ -6,7 +6,6 @@ export function initializeFirebase(apiKey: String, databaseUrl: String){
       apiKey: apiKey,
       databaseURL: databaseUrl
     };
-    console.log("apikey", apiKey);
     // @ts-ignore
     window.firebase.initializeApp(config);
   }

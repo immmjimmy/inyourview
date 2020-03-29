@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import ParticipantStrip from "../ParticipantComponents/ParticipantStrip";
 import Editor from "../EditorComponents/FirepadEditor";
-import Dictaphone from "../SpeechToTextComponents/Dictaphone";
 
 import { useParams, Redirect } from "react-router-dom";
 import { Col, Container, Row, Spinner, Button, Form } from "react-bootstrap";
@@ -10,11 +9,16 @@ import useRoomState from "../../hooks/useRoomContext";
 
 interface RoomProps {
   interviewerUsername?: boolean;
+  transcription: string;
+  updateUser: React.Dispatch<React.SetStateAction<string>>;
+  updateTranscription: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Room = ({ interviewerUsername }: RoomProps) => {
+const Room = ({ interviewerUsername, transcription, updateUser, updateTranscription }: RoomProps) => {
   const params = useParams();
   const roomState = useRoomState();
+
+  updateTranscription("");
 
   const [apiKey, setApiKey] = useState<string>("");
   const [firebaseUrl, setFirebaseUrl] = useState<string>("");
@@ -29,6 +33,12 @@ const Room = ({ interviewerUsername }: RoomProps) => {
   fetch("/firebase-url")
     .then(res => res.text())
     .then(data => setFirebaseUrl(data));
+
+  if (interviewerUsername) {
+    updateUser("host");
+  } else {
+    updateUser("user");
+  }
 
   if (roomState !== "connected" || apiKey === "" || firebaseUrl === "") {
     return <Spinner animation="border" />;
@@ -148,11 +158,7 @@ const Room = ({ interviewerUsername }: RoomProps) => {
                 readOnly
                 style={{ overflowY: "scroll", height: "100px", width: "100%" }}
               >
-                {interviewerUsername ? (
-                  <Dictaphone user="host" />
-                ) : (
-                  <Dictaphone />
-                )}
+                {transcription}
               </textarea>
             </Col>
           </Row>

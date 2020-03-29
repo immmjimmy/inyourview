@@ -19,17 +19,11 @@ const Participant = ({
   isSelected
 }: ParticipantProps) => {
   return (
-    <ParticipantInfo
+    <ParticipantTracks
       participant={participant}
-      onClick={onClick}
-      isSelected={isSelected}
-    >
-      <ParticipantTracks
-        participant={participant}
-        disableAudio={disableAudio}
-        enableScreenShare={enableScreenShare}
-      />
-    </ParticipantInfo>
+      disableAudio={disableAudio}
+      enableScreenShare={enableScreenShare}
+    />
   );
 };
 

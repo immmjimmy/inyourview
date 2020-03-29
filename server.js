@@ -301,6 +301,7 @@ app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
 // handles speech-to-text transcript sharing between host and user
 const io = socketio(server);
 io.on("connection", socket => {
+  console.log("connected");
   socket.on("user", data => {
     socket.broadcast.emit("user", data);
     console.log("user", data);
