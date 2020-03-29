@@ -1,11 +1,7 @@
 const express = require("express");
 const path = require("path");
-//const http = require("http");
 const socketio = require("socket.io");
-
 const app = express();
-//const server = http.createServer(app);
-//const io = socketio(server);
 
 const AccessToken = require("twilio").jwt.AccessToken;
 const VideoGrant = AccessToken.VideoGrant;
@@ -46,6 +42,7 @@ app.get("/", (_, res) => {
 const server = app.listen(8081, () => console.log("token server running on 8081"));
 const io = socketio(server);
 
+// handles speech-to-text transcript sharing between host and user
 io.on("connection", socket => {
     socket.on("user", (data)=>{
       socket.broadcast.emit("user", data);
