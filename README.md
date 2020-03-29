@@ -1,44 +1,72 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# In Your View
 
-## Available Scripts
+With the growing number of people utilizing remote work, our group decided to make a hack that would allow remote interviewing. We aimed to provide equal employment opportunity for all candidates. In order to do so, we enabled features that would make it more difficult for interview bias to occur. With In Your View, we hope to expand job opportunities for everyone across the globe.
 
-In the project directory, you can run:
+Checkout our devpost here: https://devpost.com/software/in-your-view
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+These following set of instructions will deploy the web application on your local machine for development and demonstration purposes.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### Prerequisites
 
-### `npm test`
+ * Node.js and npm ( https://docs.npmjs.com/downloading-and-installing-node-js-and-npm )
+ * Firebase Account and Project keys ( https://firebase.google.com/docs/web/setup ) 
+ * Twillio Account and API access keys ( https://www.twilio.com/docs/sms#build-your-app )
+ * MongoDB Atlas Account and Database access keys ( https://www.mongodb.com/cloud/atlas )
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Installing
 
-### `npm run build`
+A step by step series of examples that tell you how to get a development env running
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Install project dependencies from package.json. This will install all specified packages that are necessary to run the application. Npm will automatically take care of that for you. 
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+```
+cd yourFileSystem/inyourview
+npm install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Create environment file (.env) that will hold all secret. Create a file called ".env" and place it in the "/inyourview" directory with the following contents. If you have trouble finding the keys, refer back to the tutorials above on setting up your accounts. 
 
-### `npm run eject`
+```
+TWILIO_ACCOUNT_SID=<your key>
+TWILIO_API_KEY_SID=<your key>
+TWILIO_API_KEY_SECRET=<your key>
+FIREBASE_API_KEY=<your key>
+FIREBASE_DATABASE_URL=<your key>
+MONGO_CONNECT_USER=<your key>
+MONGO_CONNECT_PASS=<your key>
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+for example
+```
+...
+TWILIO_ACCOUNT_SID=ISN3Sdsdl3ljdpgithgprwp123notrealkey
+...
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Running in Development
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The final step is to run the React application.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+npm start
+```
 
-## Learn More
+React will run a series of scripts that will launch your application. By default, it will open a webpage to localhost:3000 after it has finished. 
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Built With
+* [React] (https://reactjs.org/) - Our favorite frontend framework
+* [Typescript] (https://www.typescriptlang.org/) - We love type checking
+* [ExpressJS] (https://expressjs.com/) - NodeJS + ExpressJS = <3 
+* [Firepad] (https://firepad.io/docs/) - Fun collaborative code editing framework
+* [Bootstrap] (https://getbootstrap.com/) - Never looked back :)
+* [MongoDB] (https://www.mongodb.com/cloud/atlas) - It was nice knowing you tables, bye SQL
+* [Twillio] (https://www.twilio.com/docs) - Twillio has so many apis :O
+* [DotEnv] (https://www.npmjs.com/package/dotenv) - Don't tell Jimmy I almost commited the api keys
+* [Jest] (https://jestjs.io/) - it ain't much but it's honest work
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+
+## Acknowledgments
+
+Thank you LA HACKS and all its sponsors and volunteers for hosting this event in such circumstances!
