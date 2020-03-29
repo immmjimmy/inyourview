@@ -39,9 +39,19 @@ const VideoAppWrapper = () => {
   const [transcription, setTranscription] = useState<string>("");
   const [user, setUser] = useState<string>("user");
 
+  const [apiKey, setApiKey] = useState<string>("");
+  const [firebaseUrl, setFirebaseUrl] = useState<string>("");
+
+  fetch("/apiKey")
+    .then(res => res.text())
+    .then(data => setApiKey(data));
+
+  fetch("/firebase-url")
+    .then(res => res.text())
+    .then(data => setFirebaseUrl(data));
+
   return (
     <VideoProvider options={connectionOptions} onError={setError}>
-      {/* <Dictaphone updateTranscript={setTranscription} user={user} /> */}
       <Router>
         <Switch>
           <Route exact path="/">
@@ -58,23 +68,16 @@ const VideoAppWrapper = () => {
             path="/room/:room/:name/:username/:interviewee"
             children={
               <Room
-                transcription={transcription}
                 interviewerUsername={true}
-                updateUser={setUser}
-                updateTranscription={setTranscription}
+                apiKey={apiKey}
+                firebaseUrl={firebaseUrl}
               />
             }
           />
           <Route
             exact
             path="/room/:room/:name"
-            children={
-              <Room
-                transcription={transcription}
-                updateUser={setUser}
-                updateTranscription={setTranscription}
-              />
-            }
+            children={<Room apiKey={apiKey} firebaseUrl={firebaseUrl} />}
           />
           <Route path="/feedback">
             <Feedback />

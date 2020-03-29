@@ -9,36 +9,17 @@ import useRoomState from "../../hooks/useRoomContext";
 
 interface RoomProps {
   interviewerUsername?: boolean;
-  transcription: string;
-  updateUser: React.Dispatch<React.SetStateAction<string>>;
-  updateTranscription: React.Dispatch<React.SetStateAction<string>>;
+  apiKey: string;
+  firebaseUrl: string;
 }
 
-const Room = ({ interviewerUsername, transcription, updateUser, updateTranscription }: RoomProps) => {
+const Room = ({ interviewerUsername, apiKey, firebaseUrl }: RoomProps) => {
   const params = useParams();
   const roomState = useRoomState();
 
-  updateTranscription("");
-
-  const [apiKey, setApiKey] = useState<string>("");
-  const [firebaseUrl, setFirebaseUrl] = useState<string>("");
   const [code, setCode] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [ended, setEnded] = useState<boolean>(false);
-
-  fetch("/apiKey")
-    .then(res => res.text())
-    .then(data => setApiKey(data));
-
-  fetch("/firebase-url")
-    .then(res => res.text())
-    .then(data => setFirebaseUrl(data));
-
-  if (interviewerUsername) {
-    updateUser("host");
-  } else {
-    updateUser("user");
-  }
 
   if (roomState !== "connected" || apiKey === "" || firebaseUrl === "") {
     return <Spinner animation="border" />;
@@ -158,7 +139,7 @@ const Room = ({ interviewerUsername, transcription, updateUser, updateTranscript
                 readOnly
                 style={{ overflowY: "scroll", height: "100px", width: "100%" }}
               >
-                {transcription}
+                Speech to Text
               </textarea>
             </Col>
           </Row>
