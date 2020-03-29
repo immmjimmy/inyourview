@@ -67,7 +67,7 @@ app.listen(8081, () => {
 });
 
 // ==================================== MongoDB Routes ======================//
-// Saves a new interview
+// Saves a new interviewer
 /**
 Format:
 {
@@ -83,7 +83,6 @@ Format:
 }
 */
 app.post("/post/interview", (request, response) => {
-    // TODO (gina): validate request
     collection.insert(request.body, (error, result) => {
       if (error) {
         return response.status(500).send(error);
@@ -92,11 +91,40 @@ app.post("/post/interview", (request, response) => {
     })
 });
 
+// Saves a new interview under an interviewer
+app.post("/post/interview/:interviewer", (request, response) => {
+    // Find the interviewer to add under
+    collection.find({"username" : request.params.interviewer}).toArray((error, result) => {
+        if(error) {
+            return response.status(500).send(error);
+        } else if (result.length <= 0) {
+            return response.status(404).send("Interviewer not found!")
+        }
+
+        // Add it to the list of interviews
+        result[0]["interviews"].push(request.body);
+
+        // Save it to the database
+        collection.updateOne(
+          { "username" : request.params.interviewer},
+          {$set: { "interviews": result[0]["interviews"]}},
+          (error, result) => {
+              if (error) {
+                  return response.status(500).send(error);
+              }
+
+              return response.send(result.result);
+          });
+    });
+});
+
 // Gets all of an interviewer's interviews
 app.get("/get/interview/:interviewer", (request, response) => {
     collection.find({"username":request.params.interviewer}).toArray((error, result) => {
         if(error) {
             return response.status(500).send(error);
+        } else if (result.length <= 0) {
+            return response.status(404).send("Interviewer not found!")
         }
         return response.send(result[0]["interviews"]);
     });
@@ -107,6 +135,8 @@ app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
     collection.find({"username":request.params.interviewer}).toArray((error, result) => {
         if(error) {
             return response.status(500).send(error);
+        } else if (result.length <= 0) {
+            return response.status(404).send("Interviewer not found!")
         }
 
         interviews = result[0]["interviews"];
@@ -119,7 +149,64 @@ app.get("/get/interview/:interviewer/:interviewee", (request, response) => {
     });
 });
 
-/** Updates a specific interview
+/**
+Deletes all of the interviewers specified by the post
+*/
+app.post("/delete/interviewers", (request, response) => {
+    for (i = 0; i < request.body["names"].length; i++) {
+      collection.deleteOne(
+        { "username": request.body["names"][i] },
+        (error, result) => {
+            if (error) {
+                return response.status(500).send(error);
+            }
+        });
+    }
+    return response.status(200).send("deleasdated: " + request.body["names"]);
+});
+
+/**
+Deletes the interviewee specified by name under the specified interviewer
+*/
+app.get("/delete/:interviewer/:interviewee", (request, response) => {
+    // Get the interviewer's document
+    collection.find({"username":request.params.interviewer}).toArray((error, result) => {
+        if(error) {
+            return response.status(500).send(error);
+        } else if (result.length <= 0) {
+            return response.status(404).send("Interviewer not found!");
+        }
+
+        // Get the list of interviews and remove the interviewee
+        interviews = result[0]["interviews"];
+        console.log(interviews);
+        interviewee = -1;
+        for (i = 0; i < interviews.length; i++) {
+            if (interviews[i]["name"] == request.params.interviewee) {
+                interviewee = i;
+                break;
+            }
+        }
+        if (interviewee < 0) {
+            return response.status(404).send("Interviewee " + interviewee + " not found!");
+        }
+        interviews.splice(interviewee, 1);
+
+        // Now save it to the db
+        collection.updateOne(
+          {"username": request.params.interviewer},
+          {$set: {"interviews": interviews}},
+          (error, result) => {
+              if (error) {
+                  return response.status(500).send(err);
+              }
+              return response.send(result.result);
+          });
+    });
+});
+
+/**
+Updates a specific interview
 Takes a dictionary body.
 
 Every parameter is optional
@@ -128,12 +215,13 @@ Every parameter is optional
 "code":"updated code",
 "notes":"updated feedback"
 }
-
 */
 app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
   collection.find({"username":request.params.interviewer}).toArray((error, result) => {
       if(error) {
           return response.status(500).send(error);
+      } else if (result.length <= 0) {
+          return response.status(404).send("Interviewer not found!")
       }
 
       // Find the interview we need to modify
@@ -148,7 +236,7 @@ app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
 
       // Check to see if it was found
       if (interviewee < 0) {
-          return response.status(404).send("Cannot find interviewee");
+          return response.status(404).send("Interviewee not found!");
       }
 
       // Find and update fields specified by the request
@@ -165,7 +253,7 @@ app.post("/update/interview/:interviewer/:interviewee", (request, response) => {
           if (error) {
               return response.status(500).send(error);
           }
-          return response.status(200).send();
+          return response.send(result.result);
       });
   });
 });
