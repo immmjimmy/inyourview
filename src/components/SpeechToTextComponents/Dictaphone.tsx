@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+//@ts-ignore
 import SpeechRecognition from "react-speech-recognition";
 
-interface DictaphoneProps = {
-  transcript: PropTypes.string,
-  resetTranscript: PropTypes.func,
-  browserSupportsSpeechRecognition: PropTypes.bool
-};
+interface DictaphoneProps {
+  transcript: String,
+  browserSupportsSpeechRecognition: Boolean
+}
 
 const Dictaphone = ({
   transcript,
-  resetTranscript,
   browserSupportsSpeechRecognition
 }: DictaphoneProps) => {
   if (!browserSupportsSpeechRecognition) {
@@ -18,13 +17,12 @@ const Dictaphone = ({
   }
 
   return (
-    <div>
-      <textarea style={{
+    <div style={{
           width: "200px",
           height: "300px",
+          border: "1px solid #ccc",
           overflowY: "auto"
-        }}>{transcript}</textarea>
-    </div>
+        }}>{transcript}</div>
   );
 };
 
