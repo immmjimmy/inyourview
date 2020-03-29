@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
+import Dictaphone from "../SpeechToTextComponents/Dictaphone";
 
 const PROJECT_NAME = "In Your View";
 
